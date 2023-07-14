@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ViewUser = () => {
+  let navigate = useNavigate();
   const { id } = useParams();
 
   const [user, setUser] = useState({
@@ -18,6 +19,15 @@ const ViewUser = () => {
   const loadUsers = async () => {
     const result = await axios.get(`http://localhost:8080/users/${id}`);
     setUser(result.data);
+  };
+
+  const deleteUser = async (id) => {
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      navigate("/");
+      await axios.delete(`http://localhost:8080/user/${id}`);
+      window.location.replace("/");
+    }
+    // loadUsers();
   };
 
   const { title, username, content } = user;
@@ -44,6 +54,15 @@ const ViewUser = () => {
               </ul>
             </div>
           </div>
+          <Link className="btn btn-primary my-2" to={`/edituser/${id}`}>
+            수정하기
+          </Link>
+          <button
+            onClick={() => deleteUser(user.id)}
+            className="btn btn-danger my-2"
+          >
+            삭제하기
+          </button>
           <Link className="btn btn-primary my-2" to={"/"}>
             돌아기기
           </Link>

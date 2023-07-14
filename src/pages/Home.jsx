@@ -1,18 +1,39 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+// import "./App.css";
 
 function Home() {
   const [users, setUsers] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    if (searchValue.length > 1) {
+      searchRequset();
+    } else if (searchValue.length < 1) {
+      loadUser();
+    }
+  }, [searchValue]);
+
+  const searchRequset = async () => {
+    const result = await axios.get(
+      `http://localhost:8080/searchUser?title=${searchValue}`
+    );
+    setUsers(result.data);
+  };
+
   const loadUser = async () => {
     const result = await axios.get("http://localhost:8080/users");
     console.log(result.data);
     setUsers(result.data);
+  };
+
+  const handleChange = (e) => {
+    setSearchValue(e.target.value);
   };
 
   return (
@@ -33,31 +54,46 @@ function Home() {
                 <Link to={`/viewuser/${user.id}`}>{user.title}</Link>
               </td>
               <td>{user.content}</td>
-              {/* <td>
-               
-                <Link
-                  to={`/edituser/${user.id}`}
-                  className="btn btn-outline-warning mx-2"
-                >
-                  수정
-                </Link>
-                <button
-                  onClick={() => user.id}
-                  className="btn btn-outline-danger mx-2"
-                >
-                  삭제
-                </button>
-              </td> */}
             </tr>
           ))}
         </tbody>
       </table>
-      <td>
-        <Link to="adduser" className="btn btn-outline-warning">
+      <div style={{ width: "70px", margin: "10px" }}>
+        <Link
+          to="adduser"
+          className="btn btn-outline-warning"
+          // style={{ position: "relative", textAlign: "left" }}
+        >
           등록
         </Link>
-      </td>
+      </div>
+
+      <div>
+        <form
+          className="d-flex"
+          role="search"
+          style={{
+            width: "90%",
+            position: "relative",
+            left: "100px",
+            bottom: "48px",
+          }}
+        >
+          <input
+            className="form-control me-2"
+            type="text"
+            onChange={handleChange}
+            value={searchValue}
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button className="btn btn-outline-success right" type="submit">
+            Search
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
+
 export default Home;
